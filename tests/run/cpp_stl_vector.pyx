@@ -1,11 +1,68 @@
 # mode: run
 # tag: cpp, werror
 
-from cython.operator cimport dereference as d
-from cython.operator cimport preincrement as incr
+from cython.operator cimport dereference as deref
+from cython.operator cimport preincrement as preincrement
 
 from libcpp.vector cimport vector
-from libcpp cimport bool as cbool
+from libcpp cimport bool
+
+
+def test_vector(values):
+    """
+    >>> test_vector([1, 10, 100])
+    1
+    10
+    100
+    """
+    v = new vector[int]()
+    for a in values:
+        v.push_back(a)
+    cdef int i
+    for i in range(len(values)):
+        print v.at(i)
+    del v
+
+ctypedef int my_int
+def test_vector_typedef(values):
+    """
+    >>> test_vector_typedef([1, 2, 3])
+    [1, 2, 3]
+    """
+    cdef vector[my_int] v = values
+    cdef vector[int] vv = v
+    return vv
+
+
+def test_vector_iterator(values):
+    """
+    >>> test_vector([11, 37, 389, 5077])
+    11
+    37
+    389
+    5077
+    """
+    v = new vector[int]()
+    for a in values:
+        v.push_back(a)
+    cdef vector[int].iterator iter = v.begin()
+    while iter != v.end():
+        print deref(iter)
+        preincrement(iter)
+    del v
+
+
+cdef class VectorWrapper:
+    """
+    >>> VectorWrapper(1, .5, .25, .125)
+    [1.0, 0.5, 0.25, 0.125]
+    """
+    cdef vector[double] vector
+    def __init__(self, *args):
+        self.vector = args
+    def __repr__(self):
+        return repr(self.vector)
+
 
 def simple_test(double x):
     """
@@ -22,7 +79,8 @@ def simple_test(double x):
     finally:
         del v
 
-def list_test(L):
+
+def list_test(values):
     """
     >>> list_test([1,2,4,8])
     (4, 4)
@@ -33,13 +91,14 @@ def list_test(L):
     """
     v = new vector[int]()
     try:
-        for a in L:
+        for a in values:
             v.push_back(a)
-        return len(L), v.size()
+        return len(values), v.size()
     finally:
         del v
 
-def index_test(L):
+
+def index_test(values):
     """
     >>> index_test([1,2,4,8])
     (1.0, 8.0)
@@ -48,14 +107,14 @@ def index_test(L):
     """
     v = new vector[double]()
     try:
-        for a in L:
+        for a in values:
             v.push_back(a)
-        return v[0][0], v[0][len(L)-1]
+        return v[0][0], v[0][len(values) - 1]
     finally:
         del v
 
 
-def index_set_test(L):
+def index_set_test(values):
     """
     >>> index_set_test([1,2,4,8])
     (-1.0, -8.0)
@@ -64,17 +123,18 @@ def index_set_test(L):
     """
     v = new vector[double]()
     try:
-        for a in L:
+        for a in values:
             v.push_back(a)
         for i in range(v.size()):
-            d(v)[i] = -d(v)[i]
-        return d(v)[0], d(v)[v.size()-1]
+            deref(v)[i] = -deref(v)[i]
+        return deref(v)[0], deref(v)[v.size() - 1]
     finally:
         del v
 
-def iteration_test(L):
+
+def iteration_test(values):
     """
-    >>> iteration_test([1,2,4,8])
+    >>> iteration_test([1, 2, 4, 8])
     1
     2
     4
@@ -82,19 +142,20 @@ def iteration_test(L):
     """
     v = new vector[int]()
     try:
-        for a in L:
+        for a in values:
             v.push_back(a)
         it = v.begin()
         while it != v.end():
-            a = d(it)
-            incr(it)
+            a = deref(it)
+            preincrement(it)
             print(a)
     finally:
         del v
 
-def reverse_iteration_test(L):
+
+def reverse_iteration_test(values):
     """
-    >>> reverse_iteration_test([1,2,4,8])
+    >>> reverse_iteration_test([1, 2, 4, 8])
     8
     4
     2
@@ -102,17 +163,18 @@ def reverse_iteration_test(L):
     """
     v = new vector[int]()
     try:
-        for a in L:
+        for a in values:
             v.push_back(a)
         it = v.rbegin()
         while it != v.rend():
-            a = d(it)
-            incr(it)
+            a = deref(it)
+            preincrement(it)
             print(a)
     finally:
         del v
 
-def nogil_test(L):
+
+def nogil_test(values):
     """
     >>> nogil_test([1,2,3])
     3
@@ -121,22 +183,24 @@ def nogil_test(L):
     with nogil:
         v = new vector[int]()
     try:
-        for a in L:
+        for a in values:
             with nogil:
                 v.push_back(a)
         return v.size()
     finally:
         del v
 
-def item_ptr_test(L, int i, int x):
+
+def item_ptr_test(values, int i, int x):
     """
     >>> item_ptr_test(range(10), 7, 100)
     [0, 1, 2, 3, 4, 5, 6, 100, 8, 9]
     """
-    cdef vector[int] v = L
+    cdef vector[int] v = values
     cdef int* vi_ptr = &v[i]
     vi_ptr[0] = x
     return v
+
 
 def test_value_type(x):
     """
@@ -148,6 +212,7 @@ def test_value_type(x):
     cdef vector[double].value_type val = x
     return val
 
+
 def test_value_type_complex(x):
     """
     >>> test_value_type_complex(2)
@@ -156,19 +221,21 @@ def test_value_type_complex(x):
     cdef vector[double complex].value_type val = x
     return val
 
+
 def test_bool_vector_convert(o):
     """
     >>> test_bool_vector_convert([True, False, None, 3])
     [True, False, False, True]
     """
-    cdef vector[cbool] v = o
+    cdef vector[bool] v = o
     return v
+
 
 def test_bool_vector_get_set():
     """
     >>> test_bool_vector_get_set()
     """
-    cdef vector[cbool] v = range(5)
+    cdef vector[bool] v = range(5)
     # Test access.
     assert not v[0], v
     assert v[1], v
@@ -178,19 +245,20 @@ def test_bool_vector_get_set():
     v[1] = False
     assert <object>v == [True, False, True, True, True]
 
-ctypedef vector[cbool] vector_bool
+
+ctypedef vector[bool] vector_bool
 ctypedef vector[int] vector_int
 
-def test_typedef_vector(L):
+def test_typedef_vector(values):
     """
     >>> test_typedef_vector([0, 1, True])
     ([0, 1, 1, 0, 1, 1], 0, [False, True, True, False, True, True], False)
     """
-    cdef vector_int vi = L
+    cdef vector_int vi = values
     cdef vector_int vi2 = vi
     vi.insert(vi.begin(), vi2.begin(), vi2.end())
 
-    cdef vector_bool vb = L
+    cdef vector_bool vb = values
     cdef vector_bool vb2 = vb
     vb.insert(vb.begin(), vb2.begin(), vb2.end())
 
