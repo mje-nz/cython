@@ -1,7 +1,10 @@
+from libc.stddef cimport ptrdiff_t
+from libcpp cimport bool
+
 cdef extern from "<vector>" namespace "std" nogil:
-    cdef cppclass vector[T,ALLOCATOR=*]:
+    cdef cppclass vector[T, Allocator=*]:
         ctypedef T value_type
-        ctypedef ALLOCATOR allocator_type
+        ctypedef Allocator allocator_type
 
         # these should really be allocator_type.size_type and
         # allocator_type.difference_type to be true to the C++ definition
@@ -16,12 +19,12 @@ cdef extern from "<vector>" namespace "std" nogil:
             iterator operator+(size_type)
             iterator operator-(size_type)
             difference_type operator-(iterator)
-            bint operator==(iterator)
-            bint operator!=(iterator)
-            bint operator<(iterator)
-            bint operator>(iterator)
-            bint operator<=(iterator)
-            bint operator>=(iterator)
+            bool operator==(iterator)
+            bool operator!=(iterator)
+            bool operator<(iterator)
+            bool operator>(iterator)
+            bool operator<=(iterator)
+            bool operator>=(iterator)
         cppclass reverse_iterator:
             T& operator*()
             reverse_iterator operator++()
@@ -29,19 +32,19 @@ cdef extern from "<vector>" namespace "std" nogil:
             reverse_iterator operator+(size_type)
             reverse_iterator operator-(size_type)
             difference_type operator-(reverse_iterator)
-            bint operator==(reverse_iterator)
-            bint operator!=(reverse_iterator)
-            bint operator<(reverse_iterator)
-            bint operator>(reverse_iterator)
-            bint operator<=(reverse_iterator)
-            bint operator>=(reverse_iterator)
+            bool operator==(reverse_iterator)
+            bool operator!=(reverse_iterator)
+            bool operator<(reverse_iterator)
+            bool operator>(reverse_iterator)
+            bool operator<=(reverse_iterator)
+            bool operator>=(reverse_iterator)
         cppclass const_iterator(iterator):
             pass
         cppclass const_reverse_iterator(reverse_iterator):
             pass
 
         vector() except +
-        # TOOD: alloc=*
+        # TODO: alloc=*
         vector(size_type, T&) except +
         vector(size_type) except +
         #vector[input_iterator](input_iterator, input_iterator)
@@ -69,7 +72,7 @@ cdef extern from "<vector>" namespace "std" nogil:
         const_reverse_iterator const_rend "crend"()
 
         # Capacity
-        bint empty()
+        bool empty()
         size_type size()
         size_type max_size()
         void reserve(size_type)
@@ -90,9 +93,9 @@ cdef extern from "<vector>" namespace "std" nogil:
         void swap(vector&)
 
         # Non-member functions
-        bint operator==(vector&, vector&)
-        bint operator!=(vector&, vector&)
-        bint operator<(vector&, vector&)
-        bint operator<=(vector&, vector&)
-        bint operator>(vector&, vector&)
-        bint operator>=(vector&, vector&)
+        bool operator==(vector&, vector&)
+        bool operator!=(vector&, vector&)
+        bool operator<(vector&, vector&)
+        bool operator<=(vector&, vector&)
+        bool operator>(vector&, vector&)
+        bool operator>=(vector&, vector&)
