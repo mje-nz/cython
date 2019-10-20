@@ -310,9 +310,37 @@ def update_cpp11_extension(ext):
     if clang_version:
         ext.extra_compile_args.append("-std=c++11")
         if sys.platform == "darwin":
-          ext.extra_compile_args.append("-stdlib=libc++")
-          ext.extra_compile_args.append("-mmacosx-version-min=10.7")
+            ext.extra_compile_args.append("-stdlib=libc++")
+            ext.extra_compile_args.append("-mmacosx-version-min=10.7")
         return ext
+
+    return EXCLUDE_EXT
+
+
+def update_cpp17_extension(ext):
+    """
+        update cpp17 extensions that will run on versions of gcc >5
+    """
+    gcc_version = get_gcc_version(ext.language)
+    if gcc_version:
+        compiler_version = gcc_version.group(1)
+        print(compiler_version)
+        if float(compiler_version) > 7.1:
+            # Library support is very minimal until GCC 7.1
+            ext.extra_compile_args.append("-std=c++17")
+            return ext
+
+    clang_version = get_clang_version(ext.language)
+    if clang_version:
+        compiler_version = float(clang_version.group(1))
+        if sys.platform == "darwin":
+            if compiler_version >= 1001:
+                ext.extra_compile_args.append("-std=c++17")
+                ext.extra_compile_args.append("-stdlib=libc++")
+                return ext
+        elif compiler_version >= 5:
+            ext.extra_compile_args.append("-std=c++17")
+            return ext
 
     return EXCLUDE_EXT
 
@@ -327,13 +355,10 @@ def get_cc_version(language):
         cc = sysconfig.get_config_var('CC')
     if not cc:
        cc = ccompiler.get_default_compiler()
-
     if not cc:
         return ''
-
     # For some reason, cc can be e.g. 'gcc -pthread'
     cc = cc.split()[0]
-
     # Force english output
     env = os.environ.copy()
     env['LC_MESSAGES'] = 'C'
@@ -398,6 +423,7 @@ EXT_EXTRAS = {
     'tag:numpy' : update_numpy_extension,
     'tag:openmp': update_openmp_extension,
     'tag:cpp11': update_cpp11_extension,
+    'tag:cpp17': update_cpp17_extension,
     'tag:trace' : update_linetrace_extension,
     'tag:bytesformat':  exclude_extension_in_pyver((3, 3), (3, 4)),  # no %-bytes formatting
     'tag:no-macos':  exclude_extension_on_platform('darwin'),
