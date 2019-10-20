@@ -318,9 +318,6 @@ def update_cpp11_extension(ext):
 
 
 def update_cpp17_extension(ext):
-    """
-        update cpp17 extensions that will run on versions of gcc >5
-    """
     gcc_version = get_gcc_version(ext.language)
     if gcc_version:
         compiler_version = gcc_version.group(1)
