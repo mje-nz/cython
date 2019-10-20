@@ -85,6 +85,7 @@ cdef extern from "<vector>" namespace "std" nogil:
         iterator insert(iterator, size_type, const T&) except +
         iterator insert[Iter](iterator, Iter, Iter) except +
         # https://github.com/cython/cython/issues/1611
+        # https://github.com/cython/cython/issues/3199
         iterator emplace[T1, T2, T3, T4, T5](iterator pos, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) except +
         iterator emplace[T1, T2, T3, T4](iterator pos, T1 arg1, T2 arg2, T3 arg3, T4 arg4) except +
         iterator emplace[T1, T2, T3](iterator pos, T1 arg1, T2 arg2, T3 arg3) except +
