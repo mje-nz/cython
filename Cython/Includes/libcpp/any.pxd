@@ -5,10 +5,11 @@ cdef extern from "<any>" namespace "std" nogil:
     cdef cppclass any:
         any()
         any(const any& other) except +
-        any any[ValueType](ValueType& value) except +  # actually ValueType&&
+        # https://github.com/cython/cython/issues/3198
+        any any[ValueType](ValueType value) except +  # actually ValueType&&
 
         any& operator=(const any& rhs) except +
-        any& operator=[ValueType](ValueType& rhs) except +  # actually ValueType&&
+        any& operator=[ValueType](ValueType rhs) except +  # actually ValueType&&
 
         void reset()
         void swap(any& other)
