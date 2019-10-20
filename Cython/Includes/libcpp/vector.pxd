@@ -84,6 +84,13 @@ cdef extern from "<vector>" namespace "std" nogil:
         iterator insert(iterator, const T&) except +
         iterator insert(iterator, size_type, const T&) except +
         iterator insert[Iter](iterator, Iter, Iter) except +
+        # https://github.com/cython/cython/issues/1611
+        iterator emplace[T1, T2, T3, T4, T5](iterator pos, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) except +
+        iterator emplace[T1, T2, T3, T4](iterator pos, T1 arg1, T2 arg2, T3 arg3, T4 arg4) except +
+        iterator emplace[T1, T2, T3](iterator pos, T1 arg1, T2 arg2, T3 arg3) except +
+        iterator emplace[T1, T2](iterator pos, T1 arg1, T2 arg2) except +
+        iterator emplace[T](iterator pos, T arg) except +
+        iterator emplace(iterator pos) except +
         iterator erase(iterator)
         iterator erase(iterator, iterator)
         void push_back(T&) except +
@@ -99,3 +106,15 @@ cdef extern from "<vector>" namespace "std" nogil:
         bool operator<=(vector&, vector&)
         bool operator>(vector&, vector&)
         bool operator>=(vector&, vector&)
+
+
+
+    """
+    template <typename Arg, typename... Args>
+    void doPrint(std::ostream& out, Arg&& arg, Args&&... args)
+    {
+        out << std::forward<Arg>(arg);
+        using expander = int[];
+        (void)expander{0, (void(out << ',' << std::forward<Args>(args)), 0)...};
+    }
+    """

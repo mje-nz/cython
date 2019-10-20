@@ -286,3 +286,14 @@ cdef cppclass MyVector[T](vector):
 
 cdef cppclass Ints(MyVector[int]):
     pass
+
+
+def test_emplace_int():
+    """
+    >>> test_emplace_int()
+    [1, 0]
+    """
+    cdef vector[int] v
+    v.emplace(v.begin())  # default-construct int at start
+    v.emplace(v.begin(), 1)  # construct 1 at start
+    return v
