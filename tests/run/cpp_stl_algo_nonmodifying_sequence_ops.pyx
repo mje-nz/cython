@@ -6,6 +6,7 @@ from cython.operator cimport dereference as deref
 from libcpp cimport bool
 from libcpp.algorithm cimport all_of, any_of, none_of, for_each, count, count_if, mismatch, find, find_if, find_if_not
 from libcpp.algorithm cimport find_end, find_first_of, adjacent_find, search, search_n
+from libcpp.functional cimport equal_to
 from libcpp.iterator cimport distance
 from libcpp.string cimport string
 from libcpp.vector cimport vector
@@ -178,19 +179,15 @@ def find_last_int_sequence(vector[int] values, vector[int] target):
         return None
 
 
-cdef bool is_equal(int lhs, int rhs):
-    return lhs == rhs
-
-
 def find_last_int_sequence2(vector[int] values, vector[int] target):
     """
-    Test find_end (using is_equal predicate).
+    Test find_end using standard library comparison function object.
 
     >>> find_last_int_sequence2([1, 2, 3, 1, 2, 3], [2, 3])
     4
     >>> find_last_int_sequence2([1, 2, 3], [4, 5])
     """
-    result = find_end(values.begin(), values.end(), target.begin(), target.end(), &is_equal)
+    result = find_end(values.begin(), values.end(), target.begin(), target.end(), equal_to[int]())
     if result != values.end():
         return distance(values.begin(), result)
     else:
@@ -216,13 +213,13 @@ def find_first_int_in_set(values, target):
 
 def find_first_int_in_set2(vector[int] values, vector[int] target):
     """
-    Test find_first_of with is_equal predicate.
+    Test find_first_of using standard library comparison function object.
 
     >>> find_first_int_in_set2([1, 2, 3, 4, 5], [3, 5])
     2
     >>> find_first_int_in_set2([1, 2, 3], [4, 5])
     """
-    result = find_first_of(values.begin(), values.end(), target.begin(), target.end(), is_equal)
+    result = find_first_of(values.begin(), values.end(), target.begin(), target.end(), equal_to[int]())
     if result != values.end():
         return distance(values.begin(), result)
     else:
@@ -246,13 +243,13 @@ def find_adjacent_int(vector[int] values):
 
 def find_adjacent_int2(vector[int] values):
     """
-    Test find_adjacent with is_equal predicate.
+    Test find_adjacent using standard library comparison function object.
 
     >>> find_adjacent_int2([0, 1, 2, 3, 40, 40, 41, 41, 5])
     4
     >>> find_adjacent_int2(range(5))
     """
-    result = adjacent_find(values.begin(), values.end(), is_equal)
+    result = adjacent_find(values.begin(), values.end(), equal_to[int]())
     if result != values.end():
         return distance(values.begin(), result)
     else:
@@ -273,14 +270,14 @@ def in_quote(string quote, string word):
 
 def in_quote2(string quote, string word):
     """
-    Test search using cppreference example (with is_equal predicate).
+    Test search using cppreference example using standard library comparison function object.
 
     >>> in_quote2(b"why waste time learning, when ignorance is instantaneous?", b"learning")
     True
     >>> in_quote2(b"why waste time learning, when ignorance is instantaneous?", b"lemming")
     False
     """
-    return search(quote.begin(), quote.end(), word.begin(), word.end(), &is_equal) != quote.end()
+    return search(quote.begin(), quote.end(), word.begin(), word.end(), equal_to[int]()) != quote.end()
 
 
 def consecutive_values(string c, int count, char v):
@@ -297,11 +294,11 @@ def consecutive_values(string c, int count, char v):
 
 def consecutive_values2(string c, int count, char v):
     """
-    Test search_n using cppreference example (with is_equal predicate).
+    Test search_n using cppreference example using standard library comparison function object.
 
     >>> consecutive_values2(b"1001010100010101001010101", 4, ord("0"))
     False
     >>> consecutive_values2(b"1001010100010101001010101", 3, ord("0"))
     True
     """
-    return search_n(c.begin(), c.end(), count, v, &is_equal) != c.end()
+    return search_n(c.begin(), c.end(), count, v, equal_to[int]()) != c.end()

@@ -11,6 +11,7 @@ from libcpp.algorithm cimport generate, generate_n, remove, remove_if, remove_co
 from libcpp.algorithm cimport replace_copy, replace_copy_if, swap, swap_ranges, iter_swap, reverse, reverse_copy
 from libcpp.algorithm cimport rotate, rotate_copy, unique, unique_copy
 from libcpp.algorithm cimport sort, upper_bound, min_element
+from libcpp.functional cimport plus
 from libcpp.iterator cimport back_inserter
 from libcpp.string cimport string
 from libcpp.vector cimport vector
@@ -130,10 +131,6 @@ def string_to_ord(string s):
     return ordinals
 
 
-cdef int add_ints(int lhs, int rhs):
-    return lhs + rhs
-
-
 def add_int_vectors(vector[int] lhs, vector[int] rhs):
     """
     Test transform (binary version).
@@ -141,7 +138,7 @@ def add_int_vectors(vector[int] lhs, vector[int] rhs):
     >>> add_int_vectors([1, 2, 3], [4, 5, 6])
     [5, 7, 9]
     """
-    transform(lhs.begin(), lhs.end(), rhs.begin(), lhs.begin(), add_ints)
+    transform(lhs.begin(), lhs.end(), rhs.begin(), lhs.begin(), plus[int]())
     return lhs
 
 
