@@ -14,6 +14,11 @@ cdef extern from "<functional>" namespace "std" nogil:
 
         bool operator bool()
 
+    cdef cppclass hash[Key]:
+        hash()
+        hash(const hash&)
+        size_t operator()(Key) except +
+
     # Arithmetic operations
     # Can't deduplicate these due to https://github.com/cython/cython/issues/2759
     # Constructors required due to https://github.com/cython/cython/issues/3193
